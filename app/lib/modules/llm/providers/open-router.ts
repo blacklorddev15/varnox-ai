@@ -2,7 +2,7 @@ import { BaseProvider } from '~/lib/modules/llm/base-provider';
 import type { ModelInfo } from '~/lib/modules/llm/types';
 import type { IProviderSetting } from '~/types/model';
 import type { LanguageModelV1 } from 'ai';
-import { createOpenRouter } from '@openrouter/ai-sdk-provider';
+import { createOpenAI } from '@ai-sdk/openai';
 
 interface OpenRouterModel {
   name: string;
@@ -118,11 +118,19 @@ export default class OpenRouterProvider extends BaseProvider {
       throw new Error(`Missing API key for ${this.name} provider`);
     }
 
-    const openRouter = createOpenRouter({
+    /*
+     * OpenRouter serves an OpenAI-compatible API, and we go through @ai-sdk/openai rather than
+     * @openrouter/ai-sdk-provider. That package is pinned at ^0.0.5, and once this app is bundled
+     * for the Vercel Node runtime its streaming breaks with:
+     *   First parameter has member 'readable' that is not a ReadableStream
+     * The OpenAI SDK is already a direct dependency and is what every other OpenAI-compatible
+     * provider here uses, so this removes the special case instead of debugging it.
+     */
+    const openRouter = createOpenAI({
+      baseURL: 'https://openrouter.ai/api/v1',
       apiKey,
     });
-    const instance = openRouter.chat(model) as LanguageModelV1;
 
-    return instance;
+    return openRouter(model) as LanguageModelV1;
   }
 }

@@ -1,5 +1,3 @@
-// Must load before anything that touches Web Streams on the server (see the module for why).
-import '~/lib/.server/stream-globals';
 import type { AppLoadContext } from '@remix-run/cloudflare';
 import { RemixServer } from '@remix-run/react';
 import { isbot } from 'isbot';

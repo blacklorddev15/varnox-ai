@@ -216,7 +216,8 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
 
               event.preventDefault();
 
-              if (props.isStreaming) {
+              if (props.isStreaming && props.input.length === 0) {
+                // Empty box: keep the existing shortcut of Enter = stop generating.
                 props.handleStop?.();
                 return;
               }

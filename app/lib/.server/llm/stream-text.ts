@@ -9,6 +9,7 @@ import { LLMManager } from '~/lib/modules/llm/manager';
 import { createScopedLogger } from '~/utils/logger';
 import { createFilesContext, extractPropertiesFromMessage } from './utils';
 import { discussPrompt } from '~/lib/common/prompts/discuss-prompt';
+import { useNativeFetchGlobals } from '~/lib/.server/native-fetch-globals';
 import type { DesignScheme } from '~/types/design-scheme';
 
 export type Messages = Message[];
@@ -306,6 +307,9 @@ export async function streamText(props: {
       2,
     ),
   );
+
+  // Undici fetch/streams, so the SDK's pipeThrough chain sees one implementation (see module).
+  useNativeFetchGlobals();
 
   return await _streamText(streamParams);
 }

@@ -6,8 +6,15 @@ export const WORK_DIR = `/home/${WORK_DIR_NAME}`;
 export const MODIFICATIONS_TAG_NAME = 'bolt_file_modifications';
 export const MODEL_REGEX = /^\[Model: (.*?)\]\n\n/;
 export const PROVIDER_REGEX = /\[Provider: (.*?)\]\n\n/;
-// Must stay valid on the default provider (Groq) - see providers/groq.ts staticModels
-export const DEFAULT_MODEL = 'openai/gpt-oss-120b';
+/*
+ * Must stay valid on the default provider below.
+ *
+ * Groq cannot serve this app on a free account: its tier caps at 8,000 tokens per minute and
+ * bolt.diy's own system prompt is already ~8,200 tokens, so every Groq request is rejected with
+ * 413 no matter which model or max_tokens is chosen. This OpenRouter free model has a 262k
+ * context, costs nothing, and accepted bolt.diy's prompt in testing.
+ */
+export const DEFAULT_MODEL = 'nex-agi/nex-n2.5-pro:free';
 export const PROMPT_COOKIE_KEY = 'cachedPrompt';
 export const TOOL_EXECUTION_APPROVAL = {
   APPROVE: 'Yes, approved.',
@@ -25,9 +32,10 @@ export const PROVIDER_LIST = llmManager.getAllProviders();
  * Amazon Bedrock. On a deployment without AWS credentials every first-time visitor therefore
  * lands on a provider that cannot answer and is shown an authentication error before they have
  * done anything wrong. Pin the default to the provider this deployment is actually configured
- * for, falling back to the previous behaviour if it is ever removed from the registry.
+ * for - OpenRouter, because Groq's free tier rejects bolt.diy's prompt size outright.
  */
-export const DEFAULT_PROVIDER = llmManager.getProvider('Groq') ?? llmManager.getDefaultProvider();
+export const DEFAULT_PROVIDER =
+  llmManager.getProvider('OpenRouter') ?? llmManager.getProvider('Groq') ?? llmManager.getDefaultProvider();
 
 export const providerBaseUrlEnvKeys: Record<string, { baseUrlKey?: string; apiTokenKey?: string }> = {};
 PROVIDER_LIST.forEach((provider) => {

@@ -348,7 +348,13 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
       },
       onError: (error: any) => {
         // Provide more specific error messages for common issues
-        const errorMessage = error.message || 'Unknown error';
+        /*
+         * The AI SDK reports a body it could not parse as "Failed to process successful response"
+         * and keeps the real reason on `cause` - which is where provider limits land, e.g. Groq's
+         * "Request too large ... tokens per minute (TPM): Limit 8000". Reading only `.message`
+         * hid that and left the user with an unactionable error.
+         */
+        const errorMessage = [error?.message, error?.cause?.message].filter(Boolean).join(' | ') || 'Unknown error';
 
         if (errorMessage.includes('model') && errorMessage.includes('not found')) {
           return 'Custom error: Invalid model selected. Please check that the model name is correct and available.';

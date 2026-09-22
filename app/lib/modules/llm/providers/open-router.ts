@@ -45,6 +45,20 @@ export default class OpenRouterProvider extends BaseProvider {
       provider: 'OpenRouter',
       maxTokenAllowed: 128000,
     },
+
+    /*
+     * Free model, kept as a static entry so the default in ~/utils/constants.ts is always
+     * selectable even if the dynamic model fetch fails. Context and completion ceilings come from
+     * https://openrouter.ai/api/v1/models (262,144 / 235,929). Verified to accept bolt.diy's
+     * ~8.2k-token system prompt, which is what Groq's free tier rejects.
+     */
+    {
+      name: 'nex-agi/nex-n2.5-pro:free',
+      label: 'Nex N2.5 Pro (free)',
+      provider: 'OpenRouter',
+      maxTokenAllowed: 262144,
+      maxCompletionTokens: 32768,
+    },
   ];
 
   async getDynamicModels(

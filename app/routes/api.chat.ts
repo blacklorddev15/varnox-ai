@@ -354,11 +354,7 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
          * "Request too large ... tokens per minute (TPM): Limit 8000". Reading only `.message`
          * hid that and left the user with an unactionable error.
          */
-        // TEMPORARY DIAGNOSTIC: surface the cause stack so the throw site is identifiable.
-        const errorMessage =
-          [error?.message, error?.cause?.message, error?.cause?.stack?.split('\n').slice(0, 5).join(' << ')]
-            .filter(Boolean)
-            .join(' | ') || 'Unknown error';
+        const errorMessage = [error?.message, error?.cause?.message].filter(Boolean).join(' | ') || 'Unknown error';
 
         if (errorMessage.includes('model') && errorMessage.includes('not found')) {
           return 'Custom error: Invalid model selected. Please check that the model name is correct and available.';

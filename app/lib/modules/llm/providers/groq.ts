@@ -14,24 +14,38 @@ export default class GroqProvider extends BaseProvider {
 
   staticModels: ModelInfo[] = [
     /*
-     * Essential fallback models - only the most stable/reliable ones
-     * Llama 3.1 8B: 128k context, fast and efficient
+     * Keep this list to models that are actually served on Groq's developer plan.
+     * The previous entries (llama-3.1-8b-instant, llama-3.3-70b-versatile) are now marked
+     * Enterprise / Contact Sales, so requests against them fail with "does not exist or you
+     * do not have access to it". Context and completion ceilings below are taken from
+     * https://console.groq.com/docs/models
      */
+
+    // GPT-OSS 120B: OpenAI's flagship open-weight model, reasoning + code execution
     {
-      name: 'llama-3.1-8b-instant',
-      label: 'Llama 3.1 8B',
+      name: 'openai/gpt-oss-120b',
+      label: 'GPT-OSS 120B',
       provider: 'Groq',
       maxTokenAllowed: 128000,
-      maxCompletionTokens: 8192,
+      maxCompletionTokens: 32768,
     },
 
-    // Llama 3.3 70B: 128k context, most capable model
+    // GPT-OSS 20B: same 131k context, roughly twice the throughput
     {
-      name: 'llama-3.3-70b-versatile',
-      label: 'Llama 3.3 70B',
+      name: 'openai/gpt-oss-20b',
+      label: 'GPT-OSS 20B',
       provider: 'Groq',
       maxTokenAllowed: 128000,
-      maxCompletionTokens: 8192,
+      maxCompletionTokens: 32768,
+    },
+
+    // Qwen3.8 27B: preview model, smaller output ceiling
+    {
+      name: 'qwen/qwen3.8-27b',
+      label: 'Qwen3.8 27B',
+      provider: 'Groq',
+      maxTokenAllowed: 128000,
+      maxCompletionTokens: 16384,
     },
   ];
 

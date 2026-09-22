@@ -201,12 +201,25 @@ export class LLMManager {
   }
 
   getDefaultProvider(): BaseProvider {
-    const firstProvider = this._providers.values().next().value;
+    const registered = [...this._providers.values()];
+    const firstProvider = registered[0];
 
     if (!firstProvider) {
       throw new Error('No providers registered');
     }
 
-    return firstProvider;
+    /*
+     * Registration order is only the export order of ./registry.ts, so returning the first entry
+     * unconditionally made a fresh deployment default to Amazon Bedrock and greet visitors with an
+     * authentication error. Prefer a provider that actually has credentials in the environment,
+     * and only fall back to registry order when none is configured.
+     */
+    const configuredProvider = registered.find((provider) => {
+      const apiTokenKey = provider.config?.apiTokenKey;
+
+      return Boolean(apiTokenKey && this._env?.[apiTokenKey]);
+    });
+
+    return configuredProvider ?? firstProvider;
   }
 }

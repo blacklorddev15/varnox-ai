@@ -23,24 +23,25 @@ export default defineConfig((config) => {
       target: 'esnext',
     },
     plugins: [
-      nodePolyfills({
-        include: ['buffer', 'process', 'util', 'stream'],
-        globals: {
-          Buffer: true,
-
-          /*
-           * Never shim the `process` global for the server build. The shim's env is an empty
-           * object, so replacing Node's real `process` silently disabled every server-side
-           * provider key: process.env.GROQ_API_KEY read as undefined even when it was set, which
-           * made "Missing Api Key configuration" look like a missing key instead of a build issue.
-           * The browser bundle still gets the shim; the server keeps the real process.env.
-           */
-          process: !isServerBuild,
-          global: true,
-        },
-        protocolImports: true,
-        exclude: ['child_process', 'fs', 'path'],
-      }),
+      /*
+       * Browser-only. These shims must never reach the server build - Node has every one of them
+       * natively, and substituting them breaks real interop. Both failures below were hit for real:
+       *   - the `process` global shim carries an empty `env`, which silently disabled every
+       *     server-side provider key (process.env.GROQ_API_KEY read as undefined even when set);
+       *   - the `stream` shim yields a Readable that is not a real ReadableStream, which broke
+       *     streaming with "First parameter has member 'readable' that is not a ReadableStream".
+       */
+      !isServerBuild &&
+        nodePolyfills({
+          include: ['buffer', 'process', 'util', 'stream'],
+          globals: {
+            Buffer: true,
+            process: true,
+            global: true,
+          },
+          protocolImports: true,
+          exclude: ['child_process', 'fs', 'path'],
+        }),
       {
         name: 'buffer-polyfill',
         transform(code, id) {

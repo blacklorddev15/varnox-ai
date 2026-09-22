@@ -13,6 +13,8 @@ dotenv.config({ path: '.env' });
 dotenv.config();
 
 export default defineConfig((config) => {
+  const isServerBuild = config.isSsrBuild === true;
+
   return {
     define: {
       'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
@@ -25,7 +27,15 @@ export default defineConfig((config) => {
         include: ['buffer', 'process', 'util', 'stream'],
         globals: {
           Buffer: true,
-          process: true,
+
+          /*
+           * Never shim the `process` global for the server build. The shim's env is an empty
+           * object, so replacing Node's real `process` silently disabled every server-side
+           * provider key: process.env.GROQ_API_KEY read as undefined even when it was set, which
+           * made "Missing Api Key configuration" look like a missing key instead of a build issue.
+           * The browser bundle still gets the shim; the server keeps the real process.env.
+           */
+          process: !isServerBuild,
           global: true,
         },
         protocolImports: true,

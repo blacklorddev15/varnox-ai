@@ -8,7 +8,7 @@ import { ClientOnly } from 'remix-utils/client-only';
 import { Menu } from '~/components/sidebar/Menu.client';
 import { Workbench } from '~/components/workbench/Workbench.client';
 import { classNames } from '~/utils/classNames';
-import { PROVIDER_LIST } from '~/utils/constants';
+import { DEFAULT_MODEL, PROVIDER_LIST } from '~/utils/constants';
 import { Messages } from './Messages.client';
 import { getApiKeysFromCookies } from './APIKeyManager';
 import Cookies from 'js-cookie';
@@ -223,11 +223,33 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
           .catch((error) => {
             console.error('Error fetching model list:', error);
           })
-          .finally(() => {
-            setIsModelLoading(undefined);
-          });
+           .finally(() => {
+             setIsModelLoading(undefined);
+           });
+       }
+     }, [providerList, provider]);
+
+    /*
+     * A saved model can outlive the model itself: providers retire ids, and the `selectedModel`
+     * cookie is kept for 30 days with no validation. When that happens the app keeps sending a
+     * retired id and the user only sees "does not exist or you do not have access to it", with no
+     * obvious way out. Once the live list arrives, fall back to something the provider does offer.
+     */
+    useEffect(() => {
+      if (!model || !modelList.length) {
+        return;
       }
-    }, [providerList, provider]);
+
+      if (modelList.some((candidate) => candidate.name === model)) {
+        return;
+      }
+
+      const fallback =
+        modelList.find((candidate) => candidate.provider === provider?.name)?.name ?? DEFAULT_MODEL;
+
+      console.warn(`Selected model "${model}" is no longer offered; falling back to "${fallback}"`);
+      setModel?.(fallback);
+    }, [model, modelList, provider, setModel]);
 
     const onApiKeysChange = async (providerName: string, apiKey: string) => {
       const newApiKeys = { ...apiKeys, [providerName]: apiKey };

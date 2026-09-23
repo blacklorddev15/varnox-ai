@@ -320,7 +320,19 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
               disabled={!props.providerList || props.providerList.length === 0}
             >
               <div className={`i-ph:caret-${props.isModelSettingsCollapsed ? 'right' : 'down'} text-lg`} />
-              {props.isModelSettingsCollapsed ? <span className="text-xs">{props.model}</span> : <span />}
+              {/*
+                When the panel is collapsed this label sits in a crowded icon row. Unclamped it
+                wrapped one character per line on a 390px screen (a tall vertical stack of
+                "nex-agi/nex-n2.5-pro:free"). inline-block + truncate keeps it to one ellipsised
+                line, and the max width is tighter on phones where space is scarce.
+              */}
+              {props.isModelSettingsCollapsed ? (
+                <span className="inline-block max-w-[5rem] truncate align-middle text-xs sm:max-w-[8rem]">
+                  {props.model}
+                </span>
+              ) : (
+                <span />
+              )}
             </IconButton>
           </div>
           {props.input.length > 3 ? (

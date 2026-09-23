@@ -86,7 +86,10 @@ export const APIKeyManager: React.FC<APIKeyManagerProps> = ({ provider, apiKey, 
   };
 
   return (
-    <div className="flex items-center justify-between py-3 px-1">
+    // flex-wrap: on a phone the "Set via environment variable" label and the edit / Get API Key
+    // controls cannot share one row, and without wrapping the label was squeezed into three
+    // cramped lines beside the icons.
+    <div className="flex flex-wrap items-center justify-between gap-y-2 py-3 px-1">
       <div className="flex items-center gap-2 flex-1">
         <div className="flex items-center gap-2">
           <span className="text-sm font-medium text-bolt-elements-textSecondary">{provider?.name} API Key:</span>

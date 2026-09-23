@@ -153,6 +153,25 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
       }
     }, [expoUrl]);
 
+    /*
+     * Phones start with the provider/model/API-key panel collapsed.
+     *
+     * That panel renders expanded by default and - measured on a 390px viewport - occupies
+     * roughly 40% of the screen height, pushing the composer into the middle of the page so
+     * the app reads as a settings form rather than a chat. Collapsing it on narrow screens
+     * leaves header + hero + composer, which is the shape of a normal mobile AI app.
+     *
+     * Nothing is removed: the caret button in the composer row still toggles it (and shows the
+     * current model name while collapsed). Done in an effect rather than as the useState
+     * initial value because this is SSR'd - reading window during the initial render would
+     * mismatch the server markup.
+     */
+    useEffect(() => {
+      if (window.innerWidth < 640) {
+        setIsModelSettingsCollapsed(true);
+      }
+    }, []);
+
     useEffect(() => {
       if (data) {
         const progressList = data.filter(
@@ -495,7 +514,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
             </StickToBottom>
             <div className="flex flex-col justify-center">
               {!chatStarted && (
-                <div className="flex justify-center gap-2">
+                <div className="flex flex-wrap justify-center gap-2 px-3">
                   {ImportButtons(importChat)}
                   <GitCloneButton importChat={importChat} />
                 </div>

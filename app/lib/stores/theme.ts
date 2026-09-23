@@ -9,7 +9,9 @@ export function themeIsDark() {
   return themeStore.get() === 'dark';
 }
 
-export const DEFAULT_THEME = 'light';
+// Must match the fallback in the inline theme script in app/root.tsx, which decides the theme
+// before first paint. Dark is the app's base theme; light is the opt-in override.
+export const DEFAULT_THEME = 'dark';
 
 export const themeStore = atom<Theme>(initStore());
 

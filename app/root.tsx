@@ -58,7 +58,14 @@ const inlineThemeCode = stripIndents`
     let theme = localStorage.getItem('bolt_theme');
 
     if (!theme) {
-      theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      /*
+       * Dark by default. The stylesheet already treats dark as the base theme - see the
+       * :root and :root[data-theme='dark'] selector in variables.scss, where dark tokens sit on
+       * plain :root and light is the opt-in override - so following prefers-color-scheme here was
+       * the only thing turning a light-mode phone light. An explicit choice still wins, because
+       * localStorage is read first.
+       */
+      theme = 'dark';
     }
 
     document.querySelector('html')?.setAttribute('data-theme', theme);
@@ -69,6 +76,8 @@ export const Head = createHead(() => (
   <>
     <meta charSet="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    {/* #0A0A0A is the dark --bolt-elements-bg-depth-1 value, kept in sync with the manifest. */}
+    <meta name="theme-color" content="#0A0A0A" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-title" content="Varnox AI" />

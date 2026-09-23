@@ -221,7 +221,20 @@
  */
 :root {
   --header-height: 54px;
-  --chat-max-width: 33rem;
+  /*
+   * Full-bleed chat.
+   *
+   * This was 33rem (528px). Every chat surface sizes to it through the `max-w-chat`
+   * shortcut (uno.config.ts:106 -> max-w-[var(--chat-max-width)]): the message list, the
+   * composer, assistant message bodies, progress and alerts. On a wide display that turned
+   * the whole conversation into a narrow centred column with large dead margins each side,
+   * which reads as "not full screen".
+   *
+   * At 100% those surfaces span the space actually available to them, so the chat fills the
+   * screen at any width. A phone is unaffected: 33rem already exceeded the viewport, so the
+   * cap was never binding there.
+   */
+  --chat-max-width: 100%;
   --chat-min-width: 533px;
   --workbench-width: min(calc(100% - var(--chat-min-width)), 2536px);
   --workbench-inner-width: var(--workbench-width);
